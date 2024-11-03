@@ -1,0 +1,65 @@
+version: "3"
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_DB: chats
+    volumes:
+      - database:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  cache:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: $REDIS_PASSWORD
+    volumes:
+      - redis_cache:/data
+  frontend:
+    build:
+      context: src/frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:3000"
+    volumes:
+      - ./src/frontend:/usr/src/app
+    environment:
+      DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/chats
+      REDIS_URL: redis://:$REDIS_PASSWORD@cache:6379
+    depends_on:
+      - db
+      - cache
+  server:
+    build:
+      context: src/backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:3000"
+    volumes:
+      - ./src/backend:/usr/src/app
+    environment:
+      DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/chats
+      REDIS_URL: redis://:$REDIS_PASSWORD@cache:6379
+    depends_on:
+      - db
+      - cache
+
+volumes:
+  database:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./store/db
+  redis_cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./store/cache
+

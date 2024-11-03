@@ -1,0 +1,18 @@
+# Start from the Bun image
+FROM oven/bun:1
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy package files for dependency installation
+COPY package.json bun.lockb ./
+
+# Install dependencies (including devDependencies)
+RUN bun install
+
+# Expose the development port
+EXPOSE 3000
+
+# Run the application in development mode with hot-reloading
+CMD ["bun", "run", "dev"]
+
