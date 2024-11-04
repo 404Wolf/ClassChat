@@ -1,4 +1,4 @@
-import { router } from "../";
+import { router } from "..";
 import { audioRouter } from "./audio";
 
 export const appRouter = router({
