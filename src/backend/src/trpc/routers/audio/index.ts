@@ -42,9 +42,6 @@ export const audioRouter = router({
         transcription: { chunk: transcription, whole: wholeTranscription },
       };
     }),
-  getAudioStatus: publicProcedure.query(() => {
-    return "Placeholder";
-  }),
 });
 
 export type AppRouter = typeof audioRouter;

@@ -9,7 +9,11 @@ interface Message {
 
 const ENTRY_BOX_MESSAGE = "Type a message... (Press Enter to send)"
 
-const ChatMessageBox = () => {
+interface ChatMessageBoxProps {
+  responder: (messsage: string, history: string[]) => Promise<string>;
+}
+
+const ChatMessageBox = ({ responder }: ChatMessageBoxProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -25,12 +29,25 @@ const ChatMessageBox = () => {
 
   const handleSubmit = () => {
     if (inputValue.trim()) {
-      setMessages(prev => [...prev, {
-        id: crypto.randomUUID(),
-        text: inputValue.trim(),
-        timestamp: new Date()
-      }]);
+      setMessages(prev => {
+        const newUserMessage = {
+          id: crypto.randomUUID(),
+          text: inputValue.trim(),
+          timestamp: new Date()
+        };
+        return [...prev, newUserMessage];
+      });
       setInputValue('');
+      responder(inputValue.trim(), messages.map(m => m.text)).then(response => {
+        setMessages(prev => {
+          const newBotMessage = {
+            id: crypto.randomUUID(),
+            text: response,
+            timestamp: new Date()
+          };
+          return [...prev, newBotMessage];
+        });
+      });
     }
   };
 
