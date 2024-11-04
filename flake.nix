@@ -22,6 +22,7 @@
           openssl
           stripe-cli
           pgcli
+          typescript
         ];
       };
     });
