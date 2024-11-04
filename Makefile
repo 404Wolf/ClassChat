@@ -4,6 +4,10 @@ COMPOSE_PROD = $(DOCKER_COMPOSE).yaml
 
 .PHONY: dev
 dev: ## Run development environment
+	$(DOCKER_COMPOSE) -f $(COMPOSE_DEV) up
+
+.PHONY: dev-build
+dev-build: ## Run development environment with build
 	$(DOCKER_COMPOSE) -f $(COMPOSE_DEV) up --build --force-recreate
 
 .PHONY: prod

@@ -4,6 +4,9 @@
     "paths": {
       "~/*": [
         "src/*"
+      ],
+      "@/db/*": [
+        "src/db/*"
       ]
     },
     // Enable latest features
