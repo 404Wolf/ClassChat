@@ -5,7 +5,8 @@ FROM oven/bun:1
 WORKDIR /usr/src/app
 
 # Copy package files for dependency installation
-COPY package.json bun.lockb ./
+COPY src/backend /usr/src/backend
+COPY src/frontend/package.json src/frontend/bun.lockb ./
 
 # Install dependencies (including devDependencies)
 RUN bun install

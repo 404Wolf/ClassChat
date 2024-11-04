@@ -22,8 +22,8 @@ services:
       - redis_cache:/data
   frontend:
     build:
-      context: src/frontend
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: src/frontend/Dockerfile.dev
     ports:
       - "8000:3000"
     volumes:

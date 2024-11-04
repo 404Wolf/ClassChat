@@ -2,6 +2,7 @@
   "name": "classchat-backend",
   "module": "src/index.ts",
   "type": "module",
+  "types": "src/index.d.ts",
   "scripts": {
     "dev": "bun run src/index.ts",
     "build": "bun build --compile --minify --sourcemap src/index.ts --outfile dist/classchat-backend"
@@ -13,8 +14,12 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@hono/trpc-server": "^0.3.2",
+    "@trpc/client": "^11.0.0-rc.608",
+    "@trpc/server": "^11.0.0-rc.608",
     "drizzle": "^1.4.0",
     "hono": "^4.6.8",
+    "trpc": "^0.11.3",
     "zod": "^3.23.8"
   }
 }

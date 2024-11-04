@@ -1,10 +1,14 @@
 import { Hono } from "hono";
+import { trpcServer } from "@hono/trpc-server";
+import { appRouter } from "~/trpc";
+
 const app = new Hono();
 
-app.get("/", (c) => c.text("Hono!"));
+app.use(
+  "/trpc/*",
+  trpcServer({
+    router: appRouter,
+  }),
+);
 
-console.log("Server is running on port 3000");
-export default {
-  port: 3000,
-  fetch: app.fetch,
-};
+export default app;
