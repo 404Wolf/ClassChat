@@ -56,6 +56,17 @@ export function useAudioTranscription({
     },
   });
 
+  useEffect(() => {
+    trpc.audio.getTranscription
+      .query({ classId })
+      .then((transcriptionHistory) => {
+        const transcription = transcriptionHistory.transcription;
+        console.log("Got transcription:", transcription);
+        setTranscription(transcription);
+      })
+      .catch((error) => {});
+  }, [classId]);
+
   // Handle recording state changes
   useEffect(() => {
     if (isRecording && recordingIntervalId === -1) {

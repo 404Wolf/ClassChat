@@ -42,6 +42,21 @@ export const audioRouter = router({
         transcription: { chunk: transcription, whole: wholeTranscription },
       };
     }),
+  getTranscription: publicProcedure
+    .input(z.object({ classId: z.string().uuid() }))
+    .output(z.object({ transcription: z.string() }))
+    .query(async ({ input }) => {
+      const { classId } = input;
+      const transcription = await redis.get(
+        `class-rec:${classId}:transcription`,
+      );
+
+      if (!transcription) {
+        throw new Error("Transcription not found");
+      }
+
+      return { transcription };
+    }),
 });
 
 export type AppRouter = typeof audioRouter;

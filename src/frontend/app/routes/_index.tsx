@@ -1,4 +1,4 @@
-import { MetaFunction } from "@remix-run/node";
+import { LoaderFunction, MetaFunction } from "@remix-run/node";
 import metadata from "~/meta";
 import { useCallback, useEffect } from "react";
 import { useAudioTranscription } from "~/hooks/useAudioTranscription";
@@ -16,6 +16,7 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   const { classId, resetClassId } = useClassId();
+
   const {
     transcription,
     isRecording,
@@ -31,14 +32,16 @@ export default function Index() {
 
   // Ask question about conversation on new chat message
   const respondToMessage = useCallback(async (query: string, history: string[]) => {
-    if (classId) {
+    console.log("Responding to message:", query);
+    console.log("Current classId:", classId);
+    if (classId !== null) {
       const response = await trpc.chat.respondToMessage.query({ query, history, classId });
       return response.response;
     }
     else {
       return "No talking detected! Cannot respond without context.";
     }
-  }, [])
+  }, [classId])
 
   return (
     <div className="w-full h-screen flex flex-col">
