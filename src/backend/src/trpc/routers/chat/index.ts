@@ -66,6 +66,46 @@ export const chatRouter = router({
 
       return { response };
     }),
+  saveChatHistory: publicProcedure
+    .input(
+      z.object({
+        classId: z.string().uuid(),
+        messages: z.array(
+          z.object({
+            role: z.string(),
+            content: z.string(),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { messages, classId } = input;
+      const history = messages.map((message) => message.content);
+
+      // Save chat history to Redis
+      await redis.set(
+        `class-rec:${classId}:chatHistory`,
+        JSON.stringify(history),
+      );
+    }),
+  getChatHistory: publicProcedure
+    .input(z.object({ classId: z.string().uuid() }))
+    .output(
+      z.object({
+        messages: z.array(
+          z.object({
+            role: z.union([z.literal("user"), z.literal("assistant")]),
+            content: z.string(),
+          }),
+        ),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { classId } = input;
+      const history = await redis.get(`class-rec:${classId}:chatHistory`);
+      const messages = history ? JSON.parse(history) : [];
+      return { messages };
+    }),
 });
 
 export type AppRouter = typeof chatRouter;

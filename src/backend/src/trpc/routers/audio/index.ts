@@ -44,18 +44,26 @@ export const audioRouter = router({
     }),
   getTranscription: publicProcedure
     .input(z.object({ classId: z.string().uuid() }))
-    .output(z.object({ transcription: z.string() }))
+    .output(
+      z.object({ transcription: z.string().optional(), found: z.boolean() }),
+    )
     .query(async ({ input }) => {
       const { classId } = input;
       const transcription = await redis.get(
         `class-rec:${classId}:transcription`,
       );
 
-      if (!transcription) {
-        throw new Error("Transcription not found");
+      if (transcription) {
+        return { transcription, found: true };
       }
-
-      return { transcription };
+      return { found: true };
+    }),
+  hasTranscription: publicProcedure
+    .input(z.object({ classId: z.string().uuid() }))
+    .output(z.boolean())
+    .query(async ({ input }) => {
+      const { classId } = input;
+      return !!(await redis.get(`class-rec:${classId}:transcription`));
     }),
 });
 

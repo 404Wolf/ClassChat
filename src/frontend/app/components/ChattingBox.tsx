@@ -7,13 +7,19 @@ interface Message {
   timestamp: Date;
 }
 
+export interface ChatHistoryMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 const ENTRY_BOX_MESSAGE = "Type a message... (Press Enter to send)"
 
 interface ChatMessageBoxProps {
   responder: (messsage: string, history: string[]) => Promise<string>;
+  history?: ChatHistoryMessage[];
 }
 
-const ChatMessageBox = ({ responder }: ChatMessageBoxProps) => {
+const ChatMessageBox = ({ history, responder }: ChatMessageBoxProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -22,6 +28,14 @@ const ChatMessageBox = ({ responder }: ChatMessageBoxProps) => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    setMessages((history || []).map(({ role, content }) => ({
+      id: crypto.randomUUID(),
+      text: content,
+      timestamp: new Date()
+    })));
+  }, [history]);
 
   useEffect(() => {
     scrollToBottom();
