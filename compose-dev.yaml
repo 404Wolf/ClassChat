@@ -46,6 +46,9 @@ services:
       DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/chats
       REDIS_URL: redis://:$REDIS_PASSWORD@cache:6379
       OPENAI_API_KEY: $OPENAI_API_KEY
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_DB: chats
     depends_on:
       - db
       - cache
@@ -63,4 +66,3 @@ volumes:
       type: none
       o: bind
       device: ./store/cache
-

@@ -3,10 +3,11 @@ import { useParams } from "@remix-run/react";
 import metadata from "~/meta";
 import { useCallback, useEffect, useState } from "react";
 import { useAudioTranscription } from "~/hooks/useAudioTranscription";
-import TranscriptionBox from "~/components/TranscriptionBox";
-import ChattingBox, { ChatHistoryMessage } from "~/components/ChattingBox";
 import trpc from "~/trpc";
 import { v4 as uuid } from "uuid";
+import TranscriptionBox, { TranscriptionContainerButton } from "~/components/transcription/TranscriptionContainer";
+import { RefreshCw as ResetIcon } from 'lucide-react';
+import ChatContainer, { ChatMessage } from "~/components/chat/ChatContainer";
 
 const NO_TALKING_MSG = "Sorry, I can't hear you. I cannot respond without context.";
 
@@ -19,7 +20,7 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   const { classId } = useParams();
-  const [chatHistory, setChatHistory] = useState<ChatHistoryMessage[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
 
   const {
     transcription,
@@ -34,12 +35,12 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    if (classId) {
-      trpc.chat.getChatHistory.query({ classId }).then((history) => {
-        console.log("Chat history:", history)
-        setChatHistory(history.messages)
-      })
-    };
+    (async () => {
+      if (classId) {
+        const history = await trpc.chat.getChatHistory.query({ classId })
+        setChatHistory(history);
+      };
+    })()
   }, [classId]);
 
   const respondToMessage = useCallback(async (query: string, history: string[]): Promise<string> => {
@@ -70,16 +71,17 @@ export default function Index() {
           startRecording,
           stopRecording,
           transcription,
-          buttons: [
-            {
-              name: "Reset",
-              onClick: () => window.location.href = `/classes/${uuid()}`,
-            }
+          otherButtons: [
+            <TranscriptionContainerButton
+              name={"Reset"}
+              icon={<ResetIcon />}
+              onClick={() => window.location.href = `/classes/${uuid()}`}
+            />
           ]
         })}
       </div>
       <div className="flex-1 w-full p-4">
-        {<ChattingBox responder={respondToMessage} history={chatHistory} />}
+        {<ChatContainer history={history} />}
       </div>
     </div>
   );
