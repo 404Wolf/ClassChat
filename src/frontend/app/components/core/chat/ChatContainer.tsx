@@ -15,21 +15,20 @@ export interface ChatMessageBoxProps {
   onSend: (message: string) => void;
   canSend?: boolean;
   noMessagesPlaceholder?: string;
+  minContainerHeight?: number;
+  placeholderInput?: string;
 }
 
 const ChatMessageBox = ({
   history,
   onSend,
   canSend = true,
-  noMessagesPlaceholder = "No messages sent"
+  noMessagesPlaceholder = "No messages sent",
+  minContainerHeight = 200,
+  placeholderInput,
 }: ChatMessageBoxProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>(history);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Update messages when history changes
-  useEffect(() => {
-    setMessages(history);
-  }, [history]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -51,36 +50,35 @@ const ChatMessageBox = ({
   const hasMessages = useMemo(() => messages.length > 0, [messages]);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex flex-col grow bg-white rounded-lg border border-gray-300 shadow-sm">
-        <div className="flex-1 overflow-y-auto p-4">
-          {!hasMessages ? (
-            <div className="h-full flex items-center justify-center">
-              <div className="text-gray-400">
-                {noMessagesPlaceholder}
-              </div>
+    <div className="flex flex-col h-full bg-white rounded-lg border border-gray-300 shadow-sm">
+      <div className="flex-1 overflow-y-auto p-4">
+        {!hasMessages ? (
+          <div className={`flex items-center justify-center min-h-[${minContainerHeight}px]`}>
+            <div className="text-gray-400">
+              {noMessagesPlaceholder}
             </div>
-          ) : (
-            <div className="space-y-3">
-              {messages.map(message =>
-                <ChatMessage
-                  key={message.id}
-                  id={message.id}
-                  text={message.text}
-                  timestamp={message.timestamp}
-                  you={message.sender === "You"}
-                />
-              )}
-              < div ref={messagesEndRef} />
-            </div>
-          )}
-        </div>
-        <div className="border-t border-gray-300">
-          <ChatInput
-            isDisabled={!canSend}
-            onSend={handleSubmit}
-          />
-        </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {messages.map(message =>
+              <ChatMessage
+                key={message.id}
+                id={message.id}
+                text={message.text}
+                timestamp={message.timestamp}
+                you={message.sender === "You"}
+              />
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        )}
+      </div>
+      <div className="border-t border-gray-300">
+        <ChatInput
+          isDisabled={!canSend}
+          onSend={handleSubmit}
+          placeholderInput={placeholderInput}
+        />
       </div>
     </div>
   );

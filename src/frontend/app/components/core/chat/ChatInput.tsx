@@ -2,7 +2,7 @@ import { Send } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface ChatInputProps {
-  inputPlaceholder?: string;
+  placeholderInput?: string;
   sendIcon?: React.ReactNode;
   onSend: (message: string) => void;
   isDisabled?: boolean;
@@ -10,7 +10,7 @@ interface ChatInputProps {
 }
 
 export default function ChatInput({
-  inputPlaceholder = "Message",
+  placeholderInput = "Message",
   sendIcon,
   isDisabled,
   onSend,
@@ -50,7 +50,7 @@ export default function ChatInput({
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isDisabled}
-          placeholder={inputPlaceholder}
+          placeholder={placeholderInput}
           className="flex-1 resize-none p-2 min-h-[44px] max-h-[120px] rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
         />
         <button

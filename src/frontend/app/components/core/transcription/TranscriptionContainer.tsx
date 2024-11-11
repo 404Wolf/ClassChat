@@ -12,6 +12,7 @@ interface TranscriptionBoxProps {
   stopRecording: () => void;
   otherButtons?: React.ReactNode[];
   waitingMessage?: string;
+  minContainerHeight?: number;
 }
 
 export default function TranscriptionBox({
@@ -20,22 +21,24 @@ export default function TranscriptionBox({
   stopRecording,
   transcription,
   otherButtons = [],
-  waitingMessage = WAITING_MESSAGE
+  waitingMessage = WAITING_MESSAGE,
+  minContainerHeight = 200
 }: TranscriptionBoxProps) {
   const buttons = useMemo(() => [
     <TranscriptionButton
       name={isRecording ? "Stop Recording" : "Start Recording"}
-      icon={isRecording ? <Mic className="w-6 h-6 text-red-500 animate-pulse" /> : <MicOff className="w-5 h-5 text-gray-500" />}
+      icon={isRecording ? <Mic className="w-6 h-6 text-red-600" /> : <MicOff className="w-5 h-5 text-gray-500" />}
       onClick={isRecording ? stopRecording : startRecording}
+      backgroundColor={isRecording ? "bg-red-100 animate-pulse border border-gray-400" : undefined}
     />,
     ...otherButtons
   ], [isRecording, startRecording, stopRecording, otherButtons]);
 
 
   return (
-    <div className="relative min-h-[200px] overflow-y-auto p-4 rounded-lg border border-gray-300 shadow-sm">
+    <div className={`relative min-h-[${minContainerHeight}px] overflow-y-auto p-4 rounded-lg border border-gray-300 shadow-sm bg-white`}>
       {transcription ? (
-        <p className="text-gray-700 whitespace-pre-wrap mb-12">
+        <p className="text-gray-700 whitespace-pre-wrap">
           {transcription}
         </p>
       ) : (

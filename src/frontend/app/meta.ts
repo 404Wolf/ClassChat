@@ -1,4 +1,7 @@
 export default {
   name: "Class Chat",
-  description: "Chat about the world!",
-}
+  email: "help@classchat.com",
+  phone: "(212)767-9653",
+  year: 2024,
+  description: "Stop, drop, and get back up!",
+};
