@@ -17,14 +17,7 @@ const classWithChatsSchema = selectClassSchema.extend({
 export const classesRouter = router({
   getClass: publicProcedure
     .input(z.object({ uuid: z.string() }))
-    .output(
-      z
-        .object({
-          class: classWithChatsSchema,
-          chats: z.array(selectChatSchema),
-        })
-        .nullable(),
-    )
+    .output(classWithChatsSchema.nullable())
     .query(async ({ input }) => {
       const result = await db
         .selectDistinct()
@@ -35,10 +28,7 @@ export const classesRouter = router({
 
       if (result.length === 0) return null;
 
-      return {
-        class: result[0].classes,
-        chats: result.map((r) => r.chats).filter((chat) => chat !== null),
-      };
+      return result[0].classes;
     }),
   addClass: publicProcedure
     .input(

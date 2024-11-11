@@ -11,10 +11,8 @@ export const audioRouter = router({
     .input(z.object({ b64: z.string(), classId: z.number().int() }))
     .output(
       z.object({
-        transcription: z.object({
-          chunk: z.string(),
-          whole: z.string(),
-        }),
+        chunk: z.string(),
+        whole: z.string(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -22,34 +20,34 @@ export const audioRouter = router({
       const transcriptionText = await transcribeAudio(b64);
 
       await redis.append(`class-rec:${classId}:audio_data`, b64);
-      await db
-        .update(transcriptions)
-        .set({
-          transcription: transcriptionText,
-          transcriber: "openai_whisper",
-        })
-        .where(eq(transcriptions.classId, classId));
 
-      const wholeTranscription = await db
+      const wholeTranscriptionResult = await db
         .select({ transcription: transcriptions.transcription })
         .from(transcriptions)
         .where(eq(transcriptions.classId, classId))
         .limit(1)
         .execute();
 
-      if (
-        wholeTranscription.length !== 1 ||
-        !wholeTranscription[0].transcription
-      ) {
-        throw new Error("Transcription not found");
-      }
-      const wholeTranscriptionText = wholeTranscription[0].transcription;
+      const wholeTranscription =
+        wholeTranscriptionResult[0]?.transcription || "";
+
+      const updatedTranscription = wholeTranscription + " " + transcriptionText;
+
+      await db
+        .update(transcriptions)
+        .set({
+          transcription: updatedTranscription,
+          transcriber: "openai_whisper",
+        })
+        .where(eq(transcriptions.classId, classId))
+        .returning({ transcription: transcriptions.transcription })
+        .then((res) => {
+          console.log(res);
+        });
 
       return {
-        transcription: {
-          chunk: transcriptionText,
-          whole: wholeTranscriptionText,
-        },
+        chunk: transcriptionText,
+        whole: updatedTranscription,
       };
     }),
   getTranscription: publicProcedure

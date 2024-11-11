@@ -1,13 +1,14 @@
 import { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import metadata from "~/meta";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import trpc from "~/trpc";
 import { v4 as uuid } from "uuid";
-import TranscriptionBox, { TranscriptionContainerButton } from "~/components/transcription/TranscriptionContainer";
+import TranscriptionBox from "~/components/transcription/TranscriptionContainer";
 import { RefreshCw as ResetIcon } from 'lucide-react';
 import ChatContainer, { ChatMessage } from "~/components/chat/ChatContainer";
 import { useChunkedAudioRecord } from "~/hooks/useChunkedAudioRecord";
+import { TranscriptionButton } from "~/components/transcription/TranscriptionButton";
 
 export const meta: MetaFunction = () => {
   return [
@@ -16,38 +17,45 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader: LoaderFunction = async ({ params, request }) => {
-  const { classId } = params;
-  if (!classId) {
-    return { status: 404, error: "Class not found" };
-  }
+interface ClassData {
+  readonly id: number;
+  readonly uuid: string;
+  readonly name: string;
+}
 
-  const classData = await trpc.classes.getClass.query({ uuid: classId! });
+export const loader: LoaderFunction = async ({ params }): Promise<ClassData> => {
+  const { classId } = params;
+
+  let classData = await trpc.classes.getClass.query({ uuid: classId! });
 
   if (!classData) {
-    return await trpc.classes.addClass.mutate({
-      uuid: classId,
-      name: "Test class",
-      description: "This is a test class!",
+    await trpc.classes.addClass.mutate({
+      uuid: classId!,
+      name: "Class name",
+      description: "An awesome class!",
     });
+    const newClassData = await trpc.classes.getClass.query({ uuid: classId! });
+    return newClassData!;
   }
-  else {
-    return classData;
-  }
+
+  return classData;
 }
 
 export default () => {
-  const classData = useLoaderData();
-  console.log(classData);
+  const classData = useLoaderData() as ClassData;
+  const [transcriptionData, setTranscriptionData] = useState<string>("");
 
   const {
     isRecording,
     startRecording,
     stopRecording,
   } = useChunkedAudioRecord({
-    intervalDuration: 5000,
+    intervalDuration: 7000,
     onAudioChunk: (audioChunk: string) => {
-      console.log("audioChunk", audioChunk);
+      console.log("Received audio chunk. Size", audioChunk.length);
+      trpc.audio.sendChunk.mutate({ classId: classData.id, b64: audioChunk }).then(({ chunk }) => {
+        setTranscriptionData(transcriptionData => transcriptionData + " " + chunk);
+      })
     }
   });
 
@@ -63,9 +71,9 @@ export default () => {
           isRecording={isRecording}
           startRecording={startRecording}
           stopRecording={stopRecording}
-          transcription={"Placeholder"}
+          transcription={transcriptionData}
           otherButtons={[
-            <TranscriptionContainerButton
+            <TranscriptionButton
               name={"Reset"}
               icon={<ResetIcon />}
               onClick={() => window.location.href = `/classes/${uuid()}`}

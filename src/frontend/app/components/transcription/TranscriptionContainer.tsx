@@ -1,5 +1,7 @@
 
 import { Mic, MicOff } from 'lucide-react';
+import { TranscriptionButton } from './TranscriptionButton';
+import { useMemo } from 'react';
 
 const WAITING_MESSAGE = "Waiting for voice...";
 
@@ -12,15 +14,6 @@ interface TranscriptionBoxProps {
   waitingMessage?: string;
 }
 
-export function TranscriptionContainerButton({ name, icon, onClick }: { name: string, icon: React.ReactNode, onClick: () => void }) {
-  return (
-    <button onClick={onClick} className="btn bg-gray-100">
-      {icon}
-      <span className="text-sm">{name}</span>
-    </button>
-  );
-}
-
 export default function TranscriptionBox({
   isRecording,
   startRecording,
@@ -29,6 +22,16 @@ export default function TranscriptionBox({
   otherButtons = [],
   waitingMessage = WAITING_MESSAGE
 }: TranscriptionBoxProps) {
+  const buttons = useMemo(() => [
+    <TranscriptionButton
+      name={isRecording ? "Stop Recording" : "Start Recording"}
+      icon={isRecording ? <Mic className="w-6 h-6 text-red-500 animate-pulse" /> : <MicOff className="w-5 h-5 text-gray-500" />}
+      onClick={isRecording ? stopRecording : startRecording}
+    />,
+    ...otherButtons
+  ], [isRecording, startRecording, stopRecording, otherButtons]);
+
+
   return (
     <div className="relative min-h-[200px] overflow-y-auto p-4 rounded-lg border border-gray-300 shadow-sm">
       {transcription ? (
@@ -42,12 +45,9 @@ export default function TranscriptionBox({
       )}
 
       <div className="absolute bottom-4 right-4 gap-4 flex">
-        <TranscriptionContainerButton
-          name={isRecording ? "Stop Recording" : "Start Recording"}
-          icon={isRecording ? <Mic className="w-6 h-6 text-red-500 animate-pulse" /> : <MicOff className="w-5 h-5 text-gray-500" />}
-          onClick={isRecording ? stopRecording : startRecording}
-        />
-        {...otherButtons}
+        {buttons.map((button, index) => (
+          <div key={index}>{button}</div>
+        ))}
       </div>
     </div>
   );
