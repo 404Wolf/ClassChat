@@ -1,4 +1,4 @@
-import openai from "~/openai";
+import openai from "../../../openai";
 
 export async function queryWithTranscription(
   query: string,

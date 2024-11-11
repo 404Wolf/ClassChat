@@ -8,13 +8,18 @@ interface ChatInputProps {
   isDisabled?: boolean;
 }
 
-export default function ChatInput({ inputPlaceholder = "Enter message", sendIcon, isDisabled }: ChatInputProps) {
+export default function ChatInput({
+  inputPlaceholder = "Message",
+  sendIcon,
+  isDisabled,
+  onSend
+}: ChatInputProps) {
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = useCallback(() => {
     const message = inputValue.trim();
-    console.log("Sending message:", message);
+    onSend(message);
   }, []);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -25,7 +30,7 @@ export default function ChatInput({ inputPlaceholder = "Enter message", sendIcon
   }, [])
 
   return (
-    <div className="shrink-0 border-t border-gray-300 p-4">
+    <div className="shrink-0 border-t border-gray-300 pt-6 pb-2 pl-2 pr-2">
       <div className="flex gap-2">
         <input
           type="text"

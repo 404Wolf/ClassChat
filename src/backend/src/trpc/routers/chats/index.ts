@@ -1,14 +1,12 @@
 import { router, publicProcedure } from "../..";
 import { z } from "zod";
-import redis from "~/db/redis";
-import openai from "~/openai";
 import { queryWithTranscription } from "./queries";
 import { eq } from "drizzle-orm";
-import { db } from "~/db";
-import { transcriptions } from "~/db/schemas/audio";
-import { chats } from "~/db/schemas/chats";
+import { db } from "../../../db";
+import { transcriptions } from "../../../db/schemas/audio";
+import { chats } from "../../../db/schemas/chats";
 
-export const chatRouter = router({
+export const chatsRouter = router({
   respondToMessage: publicProcedure
     .input(
       z.object({
@@ -90,4 +88,4 @@ export const chatRouter = router({
     }),
 });
 
-export type AppRouter = typeof chatRouter;
+export type AppRouter = typeof chatsRouter;

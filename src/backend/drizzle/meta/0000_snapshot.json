@@ -1,5 +1,5 @@
 {
-  "id": "5f312fcd-b5cb-492b-8521-245a777d02d7",
+  "id": "18d91585-d4c0-43fe-9cbc-55289f8703ce",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -24,6 +24,12 @@
             "cache": "1",
             "cycle": false
           }
+        },
+        "uuid": {
+          "name": "uuid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -61,177 +67,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.recordings": {
-      "name": "recordings",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "recordings_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "classId": {
-          "name": "classId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "objectKey": {
-          "name": "objectKey",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "recordingFormat": {
-          "name": "recordingFormat",
-          "type": "recording_format",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "startTime": {
-          "name": "startTime",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "endTime": {
-          "name": "endTime",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transcriber": {
-          "name": "transcriber",
-          "type": "transcriber_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
+      "uniqueConstraints": {
+        "classes_uuid_unique": {
+          "name": "classes_uuid_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "uuid"
+          ]
         }
       },
-      "indexes": {},
-      "foreignKeys": {
-        "recordings_classId_classes_id_fk": {
-          "name": "recordings_classId_classes_id_fk",
-          "tableFrom": "recordings",
-          "tableTo": "classes",
-          "columnsFrom": [
-            "classId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.transcriptions": {
-      "name": "transcriptions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "transcriptions_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "classId": {
-          "name": "classId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "transcription": {
-          "name": "transcription",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "recorder": {
-          "name": "recorder",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "transcriptions_classId_classes_id_fk": {
-          "name": "transcriptions_classId_classes_id_fk",
-          "tableFrom": "transcriptions",
-          "tableTo": "classes",
-          "columnsFrom": [
-            "classId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "transcriptions_recorder_users_id_fk": {
-          "name": "transcriptions_recorder_users_id_fk",
-          "tableFrom": "transcriptions",
-          "tableTo": "users",
-          "columnsFrom": [
-            "recorder"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -509,6 +353,80 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.chats": {
+      "name": "chats",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "chats_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "classId": {
+          "name": "classId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hasAi": {
+          "name": "hasAi",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "members": {
+          "name": "members",
+          "type": "integer[]",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "chats_classId_classes_id_fk": {
+          "name": "chats_classId_classes_id_fk",
+          "tableFrom": "chats",
+          "tableTo": "classes",
+          "columnsFrom": [
+            "classId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.messages": {
       "name": "messages",
       "schema": "",
@@ -529,6 +447,12 @@
             "cache": "1",
             "cycle": false
           }
+        },
+        "chatId": {
+          "name": "chatId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
         },
         "senderId": {
           "name": "senderId",
@@ -577,6 +501,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "messages_chatId_chats_id_fk": {
+          "name": "messages_chatId_chats_id_fk",
+          "tableFrom": "messages",
+          "tableTo": "chats",
+          "columnsFrom": [
+            "chatId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "messages_senderId_senders_id_fk": {
           "name": "messages_senderId_senders_id_fk",
           "tableFrom": "messages",
@@ -666,9 +603,187 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "public.recordings": {
+      "name": "recordings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "recordings_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "classId": {
+          "name": "classId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "objectKey": {
+          "name": "objectKey",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recordingFormat": {
+          "name": "recordingFormat",
+          "type": "recording_format",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "startTime": {
+          "name": "startTime",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "endTime": {
+          "name": "endTime",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "recordings_classId_classes_id_fk": {
+          "name": "recordings_classId_classes_id_fk",
+          "tableFrom": "recordings",
+          "tableTo": "classes",
+          "columnsFrom": [
+            "classId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.transcriptions": {
+      "name": "transcriptions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "transcriptions_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "classId": {
+          "name": "classId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transcription": {
+          "name": "transcription",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "recorder": {
+          "name": "recorder",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transcriber": {
+          "name": "transcriber",
+          "type": "transcriber_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "transcriptions_classId_classes_id_fk": {
+          "name": "transcriptions_classId_classes_id_fk",
+          "tableFrom": "transcriptions",
+          "tableTo": "classes",
+          "columnsFrom": [
+            "classId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "transcriptions_recorder_users_id_fk": {
+          "name": "transcriptions_recorder_users_id_fk",
+          "tableFrom": "transcriptions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "recorder"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {
+    "public.sender_type": {
+      "name": "sender_type",
+      "schema": "public",
+      "values": [
+        "user",
+        "bot"
+      ]
+    },
     "public.recording_format": {
       "name": "recording_format",
       "schema": "public",
@@ -687,14 +802,6 @@
         "openai_whisper",
         "vosk",
         "deepspeech"
-      ]
-    },
-    "public.sender_type": {
-      "name": "sender_type",
-      "schema": "public",
-      "values": [
-        "user",
-        "bot"
       ]
     }
   },

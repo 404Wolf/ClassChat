@@ -4,7 +4,7 @@ import type { AppRouter } from "classchat-backend/src/trpc/routers";
 const client = createTRPCProxyClient<AppRouter>({
   links: [
     httpBatchLink({
-      url: "http://localhost:8080/trpc",
+      url: "http://server:3000/trpc",
     }),
   ],
 });

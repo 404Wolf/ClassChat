@@ -14,7 +14,7 @@ interface TranscriptionBoxProps {
 
 export function TranscriptionContainerButton({ name, icon, onClick }: { name: string, icon: React.ReactNode, onClick: () => void }) {
   return (
-    <button onClick={onClick} className="btn">
+    <button onClick={onClick} className="btn bg-gray-100">
       {icon}
       <span className="text-sm">{name}</span>
     </button>
@@ -41,10 +41,10 @@ export default function TranscriptionBox({
         </div>
       )}
 
-      <div className="absolute bottom-4 right-4">
+      <div className="absolute bottom-4 right-4 gap-4 flex">
         <TranscriptionContainerButton
           name={isRecording ? "Stop Recording" : "Start Recording"}
-          icon={isRecording ? <Mic className="w-5 h-5 text-red-500 animate-pulse" /> : <MicOff className="w-5 h-5 text-gray-500" />}
+          icon={isRecording ? <Mic className="w-6 h-6 text-red-500 animate-pulse" /> : <MicOff className="w-5 h-5 text-gray-500" />}
           onClick={isRecording ? stopRecording : startRecording}
         />
         {...otherButtons}

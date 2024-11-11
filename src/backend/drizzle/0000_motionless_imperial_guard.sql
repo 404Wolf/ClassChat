@@ -1,30 +1,13 @@
+CREATE TYPE "public"."sender_type" AS ENUM('user', 'bot');--> statement-breakpoint
 CREATE TYPE "public"."recording_format" AS ENUM('webm', 'mp3', 'wav', 'ogg');--> statement-breakpoint
 CREATE TYPE "public"."transcriber_type" AS ENUM('web_speech_api', 'openai_whisper', 'vosk', 'deepspeech');--> statement-breakpoint
-CREATE TYPE "public"."sender_type" AS ENUM('user', 'bot');--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "classes" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "classes_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"uuid" uuid NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"description" varchar(255) NOT NULL,
-	"members" integer
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "recordings" (
-	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "recordings_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
-	"classId" integer,
-	"objectKey" varchar(255) NOT NULL,
-	"recordingFormat" "recording_format" NOT NULL,
-	"startTime" timestamp NOT NULL,
-	"endTime" timestamp NOT NULL,
-	"transcriber" "transcriber_type" NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "transcriptions" (
-	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "transcriptions_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
-	"classId" integer,
-	"transcription" text,
-	"createdAt" timestamp DEFAULT now(),
-	"recorder" integer,
-	"notes" text
+	"members" integer,
+	CONSTRAINT "classes_uuid_unique" UNIQUE("uuid")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "accounts" (
@@ -64,8 +47,18 @@ CREATE TABLE IF NOT EXISTS "verification_tokens" (
 	CONSTRAINT "verification_tokens_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "chats" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "chats_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"classId" integer,
+	"name" varchar(100) NOT NULL,
+	"description" text,
+	"hasAi" boolean,
+	"members" integer[]
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "messages" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "messages_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"chatId" integer NOT NULL,
 	"senderId" integer NOT NULL,
 	"repliesTo" integer,
 	"message" varchar(255) NOT NULL,
@@ -81,26 +74,27 @@ CREATE TABLE IF NOT EXISTS "senders" (
 	"role" "sender_type" NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "recordings" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "recordings_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"classId" integer,
+	"objectKey" varchar(255) NOT NULL,
+	"recordingFormat" "recording_format" NOT NULL,
+	"startTime" timestamp NOT NULL,
+	"endTime" timestamp NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "transcriptions" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "transcriptions_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"classId" integer,
+	"transcription" text,
+	"createdAt" timestamp DEFAULT now(),
+	"recorder" integer,
+	"transcriber" "transcriber_type" NOT NULL,
+	"notes" text
+);
+--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "classes" ADD CONSTRAINT "classes_members_users_id_fk" FOREIGN KEY ("members") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "recordings" ADD CONSTRAINT "recordings_classId_classes_id_fk" FOREIGN KEY ("classId") REFERENCES "public"."classes"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "transcriptions" ADD CONSTRAINT "transcriptions_classId_classes_id_fk" FOREIGN KEY ("classId") REFERENCES "public"."classes"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "transcriptions" ADD CONSTRAINT "transcriptions_recorder_users_id_fk" FOREIGN KEY ("recorder") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -113,6 +107,18 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "sessions" ADD CONSTRAINT "sessions_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "chats" ADD CONSTRAINT "chats_classId_classes_id_fk" FOREIGN KEY ("classId") REFERENCES "public"."classes"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "messages" ADD CONSTRAINT "messages_chatId_chats_id_fk" FOREIGN KEY ("chatId") REFERENCES "public"."chats"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -131,6 +137,24 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "senders" ADD CONSTRAINT "senders_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "recordings" ADD CONSTRAINT "recordings_classId_classes_id_fk" FOREIGN KEY ("classId") REFERENCES "public"."classes"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "transcriptions" ADD CONSTRAINT "transcriptions_classId_classes_id_fk" FOREIGN KEY ("classId") REFERENCES "public"."classes"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "transcriptions" ADD CONSTRAINT "transcriptions_recorder_users_id_fk" FOREIGN KEY ("recorder") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

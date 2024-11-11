@@ -32,7 +32,7 @@ const ChatMessageBox = ({ history, onSend, canSend = true, noMessagesPlaceholder
     <div className="flex flex-col h-full grow bg-white rounded-lg border border-gray-300 shadow-sm chat-start">
       <div className="flex-1 overflow-y-auto p-4">
         {messages.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-gray-400">
+          <div className="flex justify-center items-center h-full w-full text-gray-400">
             {noMessagesPlaceholder}
           </div>
         ) : (
@@ -50,11 +50,8 @@ const ChatMessageBox = ({ history, onSend, canSend = true, noMessagesPlaceholder
         )}
       </div>
 
-      {/* Input Area */}
-      <div className="shrink-0 border-t border-gray-300 p-4">
-        <div className="flex gap-2">
-          <ChatInput isDisabled={canSend} onSend={handleSubmit} />
-        </div>
+      <div className="shrink-0 border-gray-300 p-4 w-full">
+        <ChatInput isDisabled={canSend} onSend={handleSubmit} />
       </div>
     </div>
   );

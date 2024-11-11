@@ -1,6 +1,5 @@
 DOCKER_COMPOSE = podman-compose
-COMPOSE_DEV = compose-dev.yaml
-COMPOSE_PROD = $(DOCKER_COMPOSE).yaml
+COMPOSE_DEV = compose.yaml
 
 dev:
 	$(DOCKER_COMPOSE) -f $(COMPOSE_DEV) up
