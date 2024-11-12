@@ -1,7 +1,6 @@
-import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { useRef, useMemo, useCallback } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
-import { v4 as uuid } from 'uuid';
 
 export interface ChatMessage {
   id: string;
@@ -12,7 +11,6 @@ export interface ChatMessage {
 
 export interface ChatMessageBoxProps {
   history: ChatMessage[];
-  setHistory: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   onSend: (message: string) => void;
   canSend?: boolean;
   noMessagesPlaceholder?: string;
@@ -21,7 +19,6 @@ export interface ChatMessageBoxProps {
 
 const ChatMessageBox = ({
   history,
-  setHistory,
   onSend,
   canSend = true,
   noMessagesPlaceholder = "No messages sent",
@@ -30,18 +27,10 @@ const ChatMessageBox = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = useCallback((message: string) => {
-    const newMessage = {
-      id: uuid(),
-      text: message,
-      timestamp: new Date(),
-      sender: "You"
-    };
-
     onSend(message);
-    setHistory((prevMessages: ChatMessage[]) => [...prevMessages, newMessage]);
   }, [onSend]);
 
-  const hasMessages = useMemo(() => history.length > 0, [history, setHistory]);
+  const hasMessages = useMemo(() => history.length > 0, [history]);
 
   const Messages = () => (
     !hasMessages ? (

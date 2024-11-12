@@ -1,8 +1,10 @@
 import openai from "../../../openai";
 
 export async function queryWithTranscription(
+  callback: (chunk: string) => void,
   query: string,
   transcription: string,
+  model = "gpt-4o",
 ) {
   const messages: { role: "system" | "user" | "assistant"; content: string }[] =
     [
@@ -20,16 +22,16 @@ export async function queryWithTranscription(
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model,
       messages,
       temperature: 0.7,
       max_tokens: 500,
+      stream: true,
     });
 
-    return (
-      completion.choices[0]?.message?.content ||
-      "Sorry, I couldn't generate a response."
-    );
+    for await (const chunk of completion) {
+      callback(chunk.choices[0]?.delta.content || "");
+    }
   } catch (error) {
     console.error("OpenAI API Error:", error);
     throw new Error("Failed to generate response");

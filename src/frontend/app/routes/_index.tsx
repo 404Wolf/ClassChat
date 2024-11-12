@@ -41,7 +41,7 @@ const examples = [
 const InfoBox = ({ children }: { children: React.ReactNode }) => (
   <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-full pl-4">
     <div className="-translate-x-10 flex items-center">
-      <div className="bg-white p-6 rounded-lg border shadow-lg w-[350px] z-20">
+      <div className="bg-white p-6 rounded-lg border shadow-lg md:w-[400px] z-20">
         <p className="text-gray-800 text-xl font-medium">{children}</p>
       </div>
       <div className="scale-[200%] scale-x-[220%] translate-x-2 z-0">
@@ -69,30 +69,54 @@ export default function TranscriptionRoute() {
 
 
   const handleMessageSent = useCallback((message: string) => {
-    trpc.chats.respondToDemoChatMessage.query({
-      query: message,
-      messages: chatHistory.map((msg) => ({
-        role: msg.sender,
-        content: msg.text,
-      })),
-      transcription: transcriptionData,
-    })
-      .then((response: string) => {
-        setChatHistory((chatHistory) => {
-          const newHistory = [
-            ...chatHistory,
-            {
-              id: uuid(),
-              sender: "bot",
-              text: response,
-              timestamp: new Date(),
-            },
-          ];
-          console.log("Updating chat history", newHistory);
-          return newHistory;
-        });
-      });
-  }, [classData, transcriptionData, isRecording]);
+    const newUserMessage = {
+      id: uuid(),
+      sender: "You",
+      text: message,
+      timestamp: new Date(),
+    };
+
+    setChatHistory((chatHistory) => [...chatHistory, newUserMessage]);
+
+    setTimeout(() => {
+      const newAiMessage = {
+        id: uuid(),
+        sender: "bot",
+        text: "",
+        timestamp: new Date(),
+      };
+
+      setChatHistory((chatHistory) => [...chatHistory, newAiMessage]);
+
+      const onData = (chunk: string) => {
+        setChatHistory((chatHistory) =>
+          chatHistory.map((msg) =>
+            msg.id === newAiMessage.id
+              ? { ...msg, text: msg.text + chunk }
+              : msg
+          )
+        );
+      };
+
+      trpc.chats.respondToDemoChatMessage.subscribe(
+        {
+          query: message,
+          messages: chatHistory.map((msg) => ({
+            role: msg.sender,
+            content: msg.text,
+          })),
+          transcription: transcriptionData,
+        },
+        {
+          onData,
+          onError: console.error,
+          onComplete: () => {
+            console.log("Final message text:", newAiMessage.text);
+          },
+        }
+      );
+    }, 500);
+  }, [chatHistory, transcriptionData]);
 
   useEffect(() => {
     if (queryTypewriter.doneTyping) {
@@ -122,42 +146,43 @@ export default function TranscriptionRoute() {
   }
 
   return (
-    <MainLayout>
-      <div className="flex flex-col my-auto">
-        <div className="flex-1 p-8">
-          <h1 className="text-5xl font-bold mb-8 text-center text-gray-800">
-            Chat with the World!
-          </h1>
-          <div className="relative p-6 rounded-2xl shadow-xl bg-white border border-2">
-            <div className="relative mb-6">
-              <InfoBox>
-                A live transcription of the outside world
-              </InfoBox>
-              <div className="h-[20vh]">
-                <TranscriptionBox
-                  isRecording={isRecording}
-                  startRecording={startRecording}
-                  stopRecording={stopRecording}
-                  transcription={transcriptionData}
-                />
+    <MainLayout pad={false}>
+      <div className="px-[5%]">
+        <h1 className="text-5xl font-bold mb-8 text-center text-gray-800">
+          What's that again? Just ask Class Chat!
+        </h1>
+        <div className="flex flex-col my-auto hidden md:block md:ml-[35%] lg:ml-[35%] xl:ml-[25%]">
+          <div className="flex-1 p-8">
+            <div className="relative p-6 rounded-2xl shadow-xl bg-white border border-2">
+              <div className="relative mb-6">
+                <InfoBox>
+                  A live transcription of the outside world
+                </InfoBox>
+                <div className="h-[20vh]">
+                  <TranscriptionBox
+                    isRecording={isRecording}
+                    startRecording={startRecording}
+                    stopRecording={stopRecording}
+                    transcription={transcriptionData}
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="relative">
-              <InfoBox>
-                Use the chat box to ask questions about the world around you.
-                <br />
-                <br />
-                The live transcription will provide context for your queries.
-              </InfoBox>
-              <div className="h-[30vh] relative">
-                <ChatContainer
-                  placeholderInput={queryTypewriter.displayText}
-                  history={chatHistory}
-                  setHistory={setChatHistory}
-                  onSend={handleMessageSent}
-                  canSend={true}
-                />
+              <div className="relative">
+                <InfoBox>
+                  Use the chat box to ask questions about the world around you.
+                  <br />
+                  <br />
+                  The live transcription will provide context for your queries.
+                </InfoBox>
+                <div className="h-[45vh] relative">
+                  <ChatContainer
+                    placeholderInput={queryTypewriter.displayText}
+                    history={chatHistory}
+                    onSend={handleMessageSent}
+                    canSend={true}
+                  />
+                </div>
               </div>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../../../db";
 import { transcriptions } from "../../../db/schemas/audio";
 import { chats } from "../../../db/schemas/chats";
+import { observable } from "@trpc/server/observable";
 
 export const chatsRouter = router({
   respondToMessage: publicProcedure
@@ -107,20 +108,35 @@ export const chatsRouter = router({
         ),
       }),
     )
-    .output(z.string())
-    .query(async ({ input }) => {
+    .subscription(({ ctx, input }) => {
       const { query: rawQuery, transcription, messages } = input;
 
       const chatHistory = messages
         .map((message: any) => `${message.role}: "${message.content}"`)
         .join("\n");
 
-      return await queryWithTranscription(
-        "ClassChat is an application that records what's happening around you and lets you ask an AI questions with the transcript as context. " +
-          chatHistory +
-          rawQuery,
-        transcription,
-      );
+      return observable<string>((emit) => {
+        const onData = (chunk: string) => {
+          emit.next(chunk);
+        };
+
+        queryWithTranscription(
+          onData,
+          "ClassChat is an application that records what's happening around you and lets you ask an AI questions with the transcript as context. " +
+            chatHistory +
+            rawQuery,
+          transcription,
+          "gpt-4o-mini",
+        )
+          .then(() => {
+            emit.complete();
+          })
+          .catch((error) => {
+            emit.error(error);
+          });
+
+        return () => {};
+      });
     }),
 });
 

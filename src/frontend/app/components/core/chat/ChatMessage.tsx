@@ -7,7 +7,7 @@ interface ChatMessageBoxProps {
 
 const ChatMessage = ({ text, timestamp, you }: ChatMessageBoxProps) => {
   const chatMessage = <>
-    <div className="chat-bubble bg-gray-200">
+    <div className={`chat-bubble shadow-sm ${you ? "bg-blue-50" : "bg-stone-100"}`}>
       <p className="text-gray-700 whitespace-pre-wrap text-lg">{text}</p>
       <span className="text-xs text-gray-400">
         {timestamp.toLocaleTimeString()}

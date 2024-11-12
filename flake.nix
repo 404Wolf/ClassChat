@@ -23,6 +23,7 @@
           stripe-cli
           pgcli
           typescript
+          websocat
         ];
       };
     });
