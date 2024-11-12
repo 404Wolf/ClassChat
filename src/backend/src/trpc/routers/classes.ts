@@ -30,6 +30,29 @@ export const classesRouter = router({
 
       return result[0].classes;
     }),
+  getExampleClass: publicProcedure.output(z.string().uuid()).query(async () => {
+    const result = await db
+      .insert(classes)
+      .values({
+        uuid: uuid(),
+        name: "Example Class",
+        isExample: true,
+      })
+      .returning({ uuid: classes.uuid })
+      .execute();
+
+    new Promise<void>((resolve) =>
+      setTimeout(
+        () => {
+          db.delete(classes).where(eq(classes.uuid, result[0].uuid)).execute();
+          resolve();
+        },
+        1000 * 10 * 60, // 10 minutes
+      ),
+    );
+
+    return result[0].uuid;
+  }),
   addClass: publicProcedure
     .input(
       classWithChatsSchema.omit({ id: true }).partial({

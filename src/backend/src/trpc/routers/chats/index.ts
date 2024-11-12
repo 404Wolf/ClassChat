@@ -63,8 +63,11 @@ export const chatsRouter = router({
       z.object({
         messages: z.array(
           z.object({
-            role: z.union([z.literal("user"), z.literal("assistant")]),
-            content: z.string(),
+            chatId: z.number().int(),
+            name: z.string(),
+            description: z.string(),
+            hasAi: z.boolean(),
+            members: z.number().int(),
           }),
         ),
       }),
@@ -83,8 +86,41 @@ export const chatsRouter = router({
         .from(transcriptions)
         .where(eq(chats.classId, classId));
 
-      const messages = history ? JSON.parse(history) : [];
-      return { messages };
+      if (!chatHistory) {
+        throw new Error("Chat not found");
+      }
+
+      return {
+        messages: chatHistory,
+      };
+    }),
+  respondToDemoChatMessage: publicProcedure
+    .input(
+      z.object({
+        query: z.string(),
+        transcription: z.string(),
+        messages: z.array(
+          z.object({
+            role: z.string(),
+            content: z.string(),
+          }),
+        ),
+      }),
+    )
+    .output(z.string())
+    .query(async ({ input }) => {
+      const { query: rawQuery, transcription, messages } = input;
+
+      const chatHistory = messages
+        .map((message: any) => `${message.role}: "${message.content}"`)
+        .join("\n");
+
+      return await queryWithTranscription(
+        "ClassChat is an application that records what's happening around you and lets you ask an AI questions with the transcript as context. " +
+          chatHistory +
+          rawQuery,
+        transcription,
+      );
     }),
 });
 

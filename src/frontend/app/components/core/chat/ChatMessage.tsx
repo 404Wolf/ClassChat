@@ -14,16 +14,17 @@ const ChatMessage = ({ text, timestamp, you }: ChatMessageBoxProps) => {
       </span>
     </div>
   </>
-  if (you) return (
+
+  return (you ? (
     <div className="chat chat-end">
       {chatMessage}
     </div>
-  );
-  else (
-    <div className="chat chat-start">
-      {chatMessage}
-    </div>
-  );
+  ) :
+    (
+      <div className="chat chat-start">
+        {chatMessage}
+      </div>
+    ))
 };
 
 

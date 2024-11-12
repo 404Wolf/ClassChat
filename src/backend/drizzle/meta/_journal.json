@@ -8,6 +8,13 @@
       "when": 1731298468267,
       "tag": "0000_motionless_imperial_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1731443159158,
+      "tag": "0001_ancient_terrax",
+      "breakpoints": true
     }
   ]
 }

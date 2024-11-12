@@ -3,7 +3,7 @@ import meta from "~/meta";
 
 export function Footer() {
   return (
-    <footer className="bg-gray-50">
+    <footer className="bg-gray-50 w-[0_-4px_6px_-1px_rgba(0,0,0,0.03)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
@@ -62,7 +62,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-gray-200">
+        <div className="mt-12 pt-8">
           <p className="text-center text-gray-500">
             © {meta.year} {meta.name}. All rights reserved.
           </p>

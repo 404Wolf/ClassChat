@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChunkedAudioRecord } from "~/hooks/useChunkedAudioRecord";
 import trpc from "~/trpc";
+
+const INTERVAL_DURATION = 8000;
 
 interface ClassData {
   readonly id: number;
@@ -12,23 +14,34 @@ export const useTranscriptionChat = (
   classId: string,
   initialTranscriptionData?: string
 ) => {
-  const [classData, setClassData] = useState<ClassData | null>(null);
+  const classData = useRef<ClassData | null>(null);
   const [transcriptionData, setTranscriptionData] = useState<string>("");
+
+  useEffect(() => {
+    const initializeClass = async () => {
+      const data = await trpc.classes.getClass.query({ uuid: classId });
+      console.log("Got class data", data);
+      classData.current = data;
+    };
+
+    initializeClass();
+  }, [classId]);
 
   useEffect(() => {
     if (initialTranscriptionData) {
       setTranscriptionData(initialTranscriptionData);
     }
-  }, []);
+  }, [initialTranscriptionData, classData]);
 
   const { isRecording, startRecording, stopRecording } = useChunkedAudioRecord({
-    intervalDuration: 7000,
+    intervalDuration: INTERVAL_DURATION,
     onAudioChunk: (audioChunk: string) => {
       console.log("Received audio chunk. Size", audioChunk.length);
-      if (classData) {
+      if (classData.current !== null) {
+        console.log("Sending audio chunk to server for transcription");
         trpc.audio.sendChunk
           .mutate({
-            classId: classData.id,
+            classId: classData.current.id,
             b64: audioChunk,
           })
           .then(({ chunk }) => {
@@ -36,26 +49,13 @@ export const useTranscriptionChat = (
               (transcriptionData) => transcriptionData + " " + chunk
             );
           });
+      } else {
+        console.log(
+          "Ignoring audio chunk since class data has not been received yet"
+        );
       }
     },
   });
-
-  useEffect(() => {
-    const initializeClass = async () => {
-      let data = await trpc.classes.getClass.query({ uuid: classId });
-      if (!data) {
-        await trpc.classes.addClass.mutate({
-          uuid: classId,
-          name: "Class name",
-          description: "An awesome class!",
-        });
-        data = await trpc.classes.getClass.query({ uuid: classId });
-      }
-      setClassData(data);
-    };
-
-    initializeClass();
-  }, [classId]);
 
   useEffect(() => {
     startRecording();

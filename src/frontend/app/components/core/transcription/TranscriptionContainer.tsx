@@ -12,7 +12,6 @@ interface TranscriptionBoxProps {
   stopRecording: () => void;
   otherButtons?: React.ReactNode[];
   waitingMessage?: string;
-  minContainerHeight?: number;
 }
 
 export default function TranscriptionBox({
@@ -22,7 +21,6 @@ export default function TranscriptionBox({
   transcription,
   otherButtons = [],
   waitingMessage = WAITING_MESSAGE,
-  minContainerHeight = 200
 }: TranscriptionBoxProps) {
   const buttons = useMemo(() => [
     <TranscriptionButton
@@ -36,21 +34,23 @@ export default function TranscriptionBox({
 
 
   return (
-    <div className={`relative min-h-[${minContainerHeight}px] overflow-y-auto p-4 rounded-lg border border-gray-300 shadow-sm bg-white`}>
-      {transcription ? (
-        <p className="text-gray-700 whitespace-pre-wrap">
-          {transcription}
-        </p>
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-          {isRecording && waitingMessage}
-        </div>
-      )}
+    <div className="flex flex-col h-full">
+      <div className="flex-1 relative overflow-y-auto p-4 rounded-lg border border-gray-300 shadow-sm bg-white">
+        {transcription ? (
+          <p className="text-gray-700 whitespace-pre-wrap">
+            {transcription}
+          </p>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+            {isRecording && waitingMessage}
+          </div>
+        )}
 
-      <div className="absolute bottom-4 right-4 gap-4 flex">
-        {buttons.map((button, index) => (
-          <div key={index}>{button}</div>
-        ))}
+        <div className="absolute bottom-4 right-4 gap-4 flex">
+          {buttons.map((button, index) => (
+            <div key={index}>{button}</div>
+          ))}
+        </div>
       </div>
     </div>
   );
