@@ -149,7 +149,7 @@ export default function TranscriptionRoute() {
     <MainLayout pad={false}>
       <div className="px-[5%]">
         <h1 className="text-5xl font-bold mb-8 text-center text-gray-800">
-          What's that again? Just ask Class Chat!
+          What was that again? Just ask Class Chat!
         </h1>
         <div className="flex flex-col my-auto hidden md:block md:ml-[35%] lg:ml-[35%] xl:ml-[25%]">
           <div className="flex-1 p-8">
