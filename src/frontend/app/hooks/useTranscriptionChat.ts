@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useChunkedAudioRecord } from "~/hooks/useChunkedAudioRecord";
 import trpc from "~/trpc";
 
-const INTERVAL_DURATION = 8000;
+const INTERVAL_DURATION = 4000;
 
 interface ClassData {
   readonly id: number;
@@ -45,6 +45,9 @@ export const useTranscriptionChat = (
             b64: audioChunk,
           })
           .then(({ chunk }) => {
+            if (chunk.toLowerCase().includes("for watching!")) {
+              return;
+            }
             setTranscriptionData(
               (transcriptionData) => transcriptionData + " " + chunk
             );

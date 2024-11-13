@@ -13,7 +13,7 @@ import { v4 as uuid } from "uuid";
 
 const QUERY_TYPING_SPEED = 50
 const TRANSCRIPTION_TYPING_SPEED = 2200
-const PAUSE_BETWEEN_EXAMPLES = 850
+const PAUSE_BETWEEN_EXAMPLES = 2900
 const PLACEHOLDER_INITIAL_TRANSCRIPTION = [
   `Hello, I'm Wolf, creator of ClassChat! `,
   `ClassChat lets you ask questions about the world around you, as events happen, live! `,
@@ -32,8 +32,8 @@ export const loader: LoaderFunction = async () => {
 };
 
 const examples = [
-  "Wait what is this app??",
-  "What did they just say?",
+  "What was Wolf just talking about?",
+  "What did he say you need to do to use this thing?",
   "What does class chat do?",
   "Can you repeat that?"
 ]
@@ -120,11 +120,12 @@ export default function TranscriptionRoute() {
 
   useEffect(() => {
     if (queryTypewriter.doneTyping) {
-      setTextBeingTyped((prev) => (prev + 1) % examples.length);
+      const randomIndex = Math.floor(Math.random() * examples.length);
+      setTextBeingTyped(randomIndex);
       setTimeout(() => {
-        queryTypewriter.reset()
-        queryTypewriter.changeTypingText(examples[textBeingTyped])
-      }, PAUSE_BETWEEN_EXAMPLES)
+        queryTypewriter.reset();
+        queryTypewriter.changeTypingText(examples[randomIndex]);
+      }, PAUSE_BETWEEN_EXAMPLES);
     }
   }, [queryTypewriter.doneTyping]);
 

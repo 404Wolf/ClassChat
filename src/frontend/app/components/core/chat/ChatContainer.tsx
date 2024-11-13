@@ -1,4 +1,4 @@
-import { useRef, useMemo, useCallback } from 'react';
+import { useRef, useMemo, useCallback, useEffect } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 
@@ -24,7 +24,7 @@ const ChatMessageBox = ({
   noMessagesPlaceholder = "No messages sent",
   placeholderInput,
 }: ChatMessageBoxProps) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = useCallback((message: string) => {
     onSend(message);
@@ -50,14 +50,22 @@ const ChatMessageBox = ({
             you={message.sender === "You"}
           />
         )}
-        <div ref={messagesEndRef} />
       </div>
     )
   )
 
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }
+  }, [history])
+
   return (
     <div className="bg-white rounded-lg border border-gray-300 shadow-sm flex flex-col h-full">
-      <div className="flex flex-col flex-grow overflow-y-auto p-4 container">
+      <div
+        className="flex flex-col flex-grow overflow-y-auto p-4 container"
+        ref={scrollContainerRef}
+      >
         <Messages />
         <div className="flex-grow" />
       </div>
